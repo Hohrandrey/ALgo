@@ -1,0 +1,90 @@
+import pygame
+from random import randint
+
+score = 0
+m = True
+
+pygame.init()
+back = (200, 255, 255)
+mw = pygame.display.set_mode((500, 500))
+mw.fill(back)
+card = ['card_1', 'card_2', 'card_3', 'card_4']
+text = 'CLICK'
+
+_clock = pygame.time.Clock()
+
+#Класс прямоугольников
+class Area():
+    def __init__(self, x, y, width, height, color):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.bcolor = color
+    def coloring(self, new_color):
+        self.bcolor = new_color
+    def rectangle(self):
+        pygame.draw.rect(mw, self.bcolor, self.rect)
+    def collidepoint(self, x, y):
+        return self.rect.collidepoint(x, y)
+
+
+#Класс текста
+class Label(Area):
+    def set_text(self, fsize, text, text_color):
+        self.image = pygame.font.SysFont('verdana', fsize).render(text, True, text_color)
+    def do_draw(self):
+        self.rectangle
+        mw.blit(self.image, (self.rect.x + 5, self.rect.y +40))
+
+#отображение времени
+text_timer = Label(0, 0, 50, 50, back)
+text_timer.set_text(50, 'Время:', (0,0,0))
+text_timer.do_draw()
+
+
+#отображение счёта
+text_score = Label(350, 0, 50, 50, back)
+text_score.set_text(50, 'Счёт:'+str(score), (0,0,0))
+text_score.do_draw()
+
+
+b_x = 20
+for i in range(4):
+    card[i] = Label(b_x, 260, 90, 120, (255, 255, 0))
+    card[i].set_text(40, "CLICK", (0,0,0))
+    b_x += 120 
+
+
+wait = 0
+while m == True:
+    if wait == 0:
+        wait = 20
+        click = randint(1, 4)
+        for i in range(4):
+            card[i].coloring((255,255,0))
+            if (i+1) != click:
+                card[i].rectangle()
+            else:
+                card[i].do_draw()
+    else:
+        wait -= 1
+
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            x, y = event.pos
+            for i in range(4):
+                if card[i].collidepoint(x, y):
+                    if i + 1 == click:
+                        score += 1
+                        card[i].coloring((0, 255, 0))
+                        card[i].rectangle()
+                        text_score.set_text(50, 'Счёт:'+str(score), (0,0,0))
+                        text_score.do_draw()
+                    else:
+                        score -= 1
+                        card[i].coloring((255, 0 ,0))
+                        card[i].rectangle()
+                        text_score.set_text(50, 'Счёт:'+str(score), (0,0,0))
+                        text_score.do_draw()
+
+    
+    pygame.display.update()
+    _clock.tick(40)
